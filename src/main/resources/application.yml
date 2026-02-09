@@ -1,0 +1,31 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/reminder_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/master.yaml
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 747157721325-d604vc2cda4pf0t9q9rt74muadg4h2ps.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+              - email
+              - profile
