@@ -27,7 +27,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-        private User getUserFromOAuth2(OAuth2User oauth2User) {
+    private User getUserFromOAuth2(OAuth2User oauth2User) {
         String googleId = oauth2User.getAttribute("sub");
         return userRepository.findByGoogleId(googleId)
                 .orElseThrow(() -> new RuntimeException("User не найден"));
