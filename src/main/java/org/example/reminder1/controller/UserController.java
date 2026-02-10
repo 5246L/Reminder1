@@ -21,8 +21,7 @@ public class UserController {
 
     private User getUserFromOAuth2(OAuth2User oauth2User) {
         String googleId = oauth2User.getAttribute("sub");
-        return userRepository.findByGoogleId(googleId)
-                .orElseThrow(() -> new RuntimeException("User не найден"));
+        return userService.getUserByGoogleId(googleId);
     }
 
     @GetMapping("/profile")

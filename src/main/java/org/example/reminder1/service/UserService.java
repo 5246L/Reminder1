@@ -3,6 +3,7 @@ package org.example.reminder1.service;
 import lombok.RequiredArgsConstructor;
 import org.example.reminder1.entity.User;
 import org.example.reminder1.repository.UserRepository;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -11,6 +12,17 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+
+    private User getUserFromOAuth2(OAuth2User oauth2User) {
+        String googleId = oauth2User.getAttribute("sub");
+        return userRepository.findByGoogleId(googleId)
+                .orElseThrow(() -> new RuntimeException("User не найден"));
+    }
+
+    public User getUserByGoogleId(String googleId) {
+        return userRepository.findByGoogleId(googleId)
+                .orElseThrow(() -> new RuntimeException("User не найден"));
+    }
 
     public User createUser(User user) {
         return userRepository.save(user);
