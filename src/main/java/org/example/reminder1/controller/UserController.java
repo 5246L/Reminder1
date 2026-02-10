@@ -6,7 +6,6 @@ import org.example.reminder1.dto.UpdateEmailRequest;
 import org.example.reminder1.dto.UpdateTelegramRequest;
 import org.example.reminder1.dto.UserProfileResponse;
 import org.example.reminder1.entity.User;
-import org.example.reminder1.repository.UserRepository;
 import org.example.reminder1.service.UserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -17,12 +16,10 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final UserRepository userRepository;
 
     private User getUserFromOAuth2(OAuth2User oauth2User) {
         String googleId = oauth2User.getAttribute("sub");
-        return userRepository.findByGoogleId(googleId)
-                .orElseThrow(() -> new RuntimeException("User не найден"));
+        return userService.getUserByGoogleId(googleId);
     }
 
     @GetMapping("/profile")

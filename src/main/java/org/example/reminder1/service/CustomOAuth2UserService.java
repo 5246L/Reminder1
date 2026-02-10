@@ -17,6 +17,7 @@ import java.util.Optional;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
+    private final UserService userService;
 
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2IntrospectionException {
 
@@ -34,7 +35,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user = new User();
             user.setGoogleId(googleId);
             user.setEmail(oAuth2User.getAttribute("email"));
-            user = userRepository.save(user);
+            userService.createUser(user);
         }
 
         return oAuth2User;
