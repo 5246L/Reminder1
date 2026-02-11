@@ -29,3 +29,20 @@ spring:
             scope:
               - email
               - profile
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: levk9594@gmail.com
+    password: dbtguesnohjjqhxy
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+telegram:
+  bot:
+    token: 8562427016:AAGmYjhnkshrGsmmFxUTdQPNS6VFRAOEsvs
+    username: rem1Ders_bot
