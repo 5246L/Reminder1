@@ -9,8 +9,8 @@ import org.example.reminder1.dto.SortRequest;
 import org.example.reminder1.entity.Reminder;
 import org.example.reminder1.entity.User;
 import org.example.reminder1.repository.ReminderRepository;
-import org.example.reminder1.repository.UserRepository;
 import org.example.reminder1.service.ReminderService;
+import org.example.reminder1.service.UserService;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,12 +26,11 @@ import java.util.List;
 public class ReminderController {
     private final ReminderService reminderService;
     private final ReminderRepository reminderRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     private User getUserFromOAuth2(OAuth2User oauth2User) {
         String googleId = oauth2User.getAttribute("sub");
-        return userRepository.findByGoogleId(googleId)
-                .orElseThrow(() -> new RuntimeException("User не найден"));
+        return userService.getUserByGoogleId(googleId);
     }
 
     @PostMapping("/create")
