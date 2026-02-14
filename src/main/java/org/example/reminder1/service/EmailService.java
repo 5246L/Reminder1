@@ -19,7 +19,7 @@ public class EmailService {
             simpleMailMessage.setTo(to);
             simpleMailMessage.setSubject("Напоминание: " + title);
             simpleMailMessage.setText(description);
-            simpleMailMessage.setFrom("levk9594@reminder.com");
+//            simpleMailMessage.setFrom("levk9594@reminder.com");
 
 
             mailSender.send(simpleMailMessage);

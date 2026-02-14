@@ -9,6 +9,20 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+
+    public void createUser(User user) {
+        userRepository.save(user);
+    }
+
+    public User getUserByGoogleId(String googleId) {
+        return userRepository.findByGoogleId(googleId)
+                .orElseThrow(() -> new RuntimeException("User не найден"));
+    }
+
+    public User updateUser(User user) {
+        return userRepository.save(user);
+    }
+}
 /*
     public User getUserByTelegramChatId(Long telegramChatId) {
         Optional<User> userTelegramChat = userRepository.findByTelegramChatId(telegramChatId);
@@ -43,17 +57,3 @@ public class UserService {
         }
     }
 */
-
-    public void createUser(User user) {
-        userRepository.save(user);
-    }
-
-    public User getUserByGoogleId(String googleId) {
-        return userRepository.findByGoogleId(googleId)
-                .orElseThrow(() -> new RuntimeException("User не найден"));
-    }
-
-    public User updateUser(User user) {
-        return userRepository.save(user);
-    }
-}
