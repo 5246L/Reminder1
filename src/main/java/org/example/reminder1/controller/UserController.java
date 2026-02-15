@@ -6,6 +6,7 @@ import org.example.reminder1.dto.UpdateEmailRequest;
 import org.example.reminder1.dto.UpdateTelegramRequest;
 import org.example.reminder1.dto.UserProfileResponse;
 import org.example.reminder1.entity.User;
+import org.example.reminder1.repository.UserRepository;
 import org.example.reminder1.service.UserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final UserRepository userRepository;
 
     private User getUserFromOAuth2(OAuth2User oauth2User) {
         String googleId = oauth2User.getAttribute("sub");
@@ -55,7 +57,7 @@ public class UserController {
 
         User user = getUserFromOAuth2(oauth2User);
         user.setTelegramChatId(request.getTelegramChatId());
-        User updated = userService.updateUser(user);
+        User updated = userRepository.save(user);
 
         return new UserProfileResponse(
                 updated.getId(),
@@ -70,6 +72,24 @@ public class UserController {
 
         user.setTelegramChatId(null);
         User updated = userService.updateUser(user);
+
+        return new UserProfileResponse(
+                updated.getId(),
+                updated.getEmail(),
+                updated.getTelegramChatId()
+        );
+    }
+
+    @PutMapping("/test/telegram")
+    public UserProfileResponse testUpdateTelegram(
+            @Valid @RequestBody UpdateTelegramRequest updateTelegramRequest,
+            @RequestParam Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User с ID " + userId + " не найден"));
+
+        user.setTelegramChatId(updateTelegramRequest.getTelegramChatId());
+        User updated = userRepository.save(user);
 
         return new UserProfileResponse(
                 updated.getId(),

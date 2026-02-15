@@ -33,8 +33,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: levk9594@gmail.com
-    password: dbtguesnohjjqhxy
+    username: levakalinin39@gmail.com
+    password: bzmeyrfhmvqcqlwy
     properties:
       mail:
         smtp:
@@ -44,5 +44,5 @@ spring:
 
 telegram:
   bot:
-    token: 8562427016:AAGmYjhnkshrGsmmFxUTdQPNS6VFRAOEsvs
+    token: "8562427016:AAGmYjhnkshrGsmmFxUTdQPNS6VFRAOEsvs"
     username: rem1Ders_bot

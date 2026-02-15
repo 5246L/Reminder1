@@ -14,12 +14,15 @@ public class EmailService {
     private final JavaMailSender mailSender;
 
     public void sendReminder(String to, String title, String description) {
+
+        if (to == null || to.isBlank()) {
+            throw new IllegalArgumentException("Email получателя не может быть пустым");
+        }
         try {
             SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
             simpleMailMessage.setTo(to);
-            simpleMailMessage.setSubject("Напоминание: " + title);
+            simpleMailMessage.setSubject("🔔 Напоминание: " + title);
             simpleMailMessage.setText(description);
-//            simpleMailMessage.setFrom("levk9594@reminder.com");
 
 
             mailSender.send(simpleMailMessage);
