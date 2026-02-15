@@ -2,12 +2,11 @@ package org.example.reminder1.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.reminder1.dto.TelegramSendMessageRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Service
@@ -20,17 +19,32 @@ public class TelegramService {
     private final RestTemplate restTemplate;
 
     public void sendReminder(Long chatId, String title, String description) {
+        if (chatId == null) {
+            log.warn("chat_id is null, пропускаем отправку");
+            return;
+        }
+
         try {
             String text = "🔔 " + title + "\n\n" + description;
-            String encodedText = URLEncoder.encode(text, StandardCharsets.UTF_8);
 
             String url = String.format(
-                    "https://api.telegram.org/bot%s/sendMessage?chat_id=%d&text=%s",
-                    botToken,
-                    chatId,
-                    encodedText  // ← Закодированный текст
+                    "https://api.telegram.org/bot%s/sendMessage",
+                    botToken
             );
-            restTemplate.getForObject(url, String.class);
+
+            TelegramSendMessageRequest request = new TelegramSendMessageRequest(chatId, text);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<TelegramSendMessageRequest> entity = new HttpEntity<>(request, headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    entity,
+                    String.class
+            );
 
             log.info("Успешно отправлено на Telegram {}", chatId);
 

@@ -28,35 +28,49 @@ public class ReminderScheduler {
 
         log.info("Найдено напоминаний {}", reminders.size());
 
-        for(Reminder reminder : reminders) {
+        for (Reminder reminder : reminders) {
+            boolean emailSent = false;
+            boolean telegramSent = false;
+
             try {
-                if(reminder.getUser().getEmail() != null) {
+                if (reminder.getUser().getEmail() != null) {
                     emailService.sendReminder(
                             reminder.getUser().getEmail(),
                             reminder.getTitle(),
                             reminder.getDescription()
                     );
-
-                    log.info("Отправлено на Email {}",  reminder.getUser().getEmail());
+                    log.info("Email отправлен: {}", reminder.getUser().getEmail());
+                    emailSent = true;
                 }
+            } catch (Exception e) {
+                log.error("Ошибка отправки Email для ID {}: {}", reminder.getId(), e.getMessage());
+            }
 
-                if(reminder.getUser().getTelegramChatId() != null) {
+            try {
+                if (reminder.getUser().getTelegramChatId() != null) {
                     telegramService.sendReminder(
                             reminder.getUser().getTelegramChatId(),
                             reminder.getTitle(),
                             reminder.getDescription()
                     );
-
-                    log.info("Отправлено в Telegram {}", reminder.getUser().getTelegramChatId());
+                    log.info("Telegram отправлен: {}", reminder.getUser().getTelegramChatId());
+                    telegramSent = true;
                 }
+            } catch (Exception e) {
+                log.error("Ошибка отправки Telegram для ID {}: {}", reminder.getId(), e.getMessage());
+            }
 
-                reminder.setNotified(true);
-                reminderService.updateReminder(reminder);
-
-            }catch (Exception e) {
-                log.error("Ошибка отправки напоминания ID {}: {}", reminder.getId(), e.getMessage());
+            if (emailSent || telegramSent) {
+                try {
+                    reminder.setNotified(true);
+                    reminderService.updateReminder(reminder);
+                    log.info("Напоминание ID {} помечено как отправленное", reminder.getId());
+                } catch (Exception e) {
+                    log.error("Ошибка обновления notified для ID {}: {}", reminder.getId(), e.getMessage());
+                }
+            } else {
+                log.warn("Напоминание ID {} не отправлено ни в Email, ни в Telegram", reminder.getId());
             }
         }
-
     }
 }
