@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-google-id-to-users
+      author: your_name
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: google_id
+                  type: varchar(255)
+                  constraints:
+                    unique: true
+                    nullable: true
