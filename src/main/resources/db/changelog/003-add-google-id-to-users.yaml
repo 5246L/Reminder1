@@ -1,14 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: add-google-id-to-users
-      author: your_name
+      author: lev
       changes:
-        - addColumn:
-            tableName: users
-            columns:
-              - column:
-                  name: google_id
-                  type: varchar(255)
-                  constraints:
-                    unique: true
-                    nullable: true
+        -sqlFile:
+          -path: db/changelog/sql/003-add-google-id-to-users.sql

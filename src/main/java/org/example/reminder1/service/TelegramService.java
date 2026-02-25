@@ -1,6 +1,5 @@
 package org.example.reminder1.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.reminder1.dto.TelegramSendMessageRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,13 +9,17 @@ import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class TelegramService {
 
-    @Value("${telegram.bot.token}")
-    private String botToken;
-
+    private final String botToken;
     private final RestTemplate restTemplate;
+
+    public TelegramService (
+            @Value("${telegram.bot.token}") String botToken,
+            RestTemplate restTemplate) {
+        this.botToken = botToken;
+        this.restTemplate = restTemplate;
+    }
 
     public void sendReminder(Long chatId, String title, String description) {
         if (chatId == null) {

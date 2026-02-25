@@ -18,20 +18,17 @@ public class ReminderService {
         return reminderRepository.findAllByUserId(userId);
     }
 
+    public Reminder getReminderById(Long id) {
+        return reminderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Напоминание не найдено"));
+    }
+
     public List<Reminder> getUserRemindersSorted(Long userId, Sort sort) {
         return reminderRepository.findAllByUserId(userId, sort);
     }
 
     public List<Reminder> getUserRemindersFiltered(Long userId, LocalDateTime from, LocalDateTime to) {
-        if (from != null && to != null) {
-            return reminderRepository.findByUserIdAndRemindBetween(userId, from, to);
-        } else if (from != null) {
-            return reminderRepository.findByUserIdAndRemindAfter(userId, from);
-        } else if (to != null) {
-            return reminderRepository.findByUserIdAndRemindBefore(userId, to);
-        } else {
-            return reminderRepository.findAllByUserId(userId);
-        }
+        return reminderRepository.findByUserIdAndOptionalDateRange(userId, from, to);
     }
 
     public List<Reminder> getRemindersToSend(LocalDateTime now) {

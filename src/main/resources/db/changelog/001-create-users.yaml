@@ -3,19 +3,5 @@ databaseChangeLog:
       id: 001-create-users
       author: lev
       changes:
-        - createTable:
-            tableName: users
-            columns:
-              - column:
-                  name: id
-                  type: bigint
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: email
-                  type: varchar(255)
-              - column:
-                  name: telegram_chat_id
-                  type: varchar(255)
+        -sqlFile:
+          path: db/changelog/sql/001-create-users.sql

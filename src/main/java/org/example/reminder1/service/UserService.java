@@ -23,37 +23,3 @@ public class UserService {
         return userRepository.save(user);
     }
 }
-/*
-    public User getUserByTelegramChatId(Long telegramChatId) {
-        Optional<User> userTelegramChat = userRepository.findByTelegramChatId(telegramChatId);
-
-        if (userTelegramChat.isPresent()) {
-            return userTelegramChat.get();
-        } else {
-            throw new RuntimeException("Пользователь не найден");
-        }
-    }
-
-    public User updateTelegramChatId(Long userId, Long telegramChatId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User не найден"));
-        user.setTelegramChatId(telegramChatId);
-        return userRepository.save(user);
-    }
-
-   private User getUserFromOAuth2(OAuth2User oauth2User) {
-        String googleId = oauth2User.getAttribute("sub");
-        return userRepository.findByGoogleId(googleId)
-                .orElseThrow(() -> new RuntimeException("User не найден"));
-    }
-
-    public User getUserByEmail(String email) {
-        Optional<User> userEmail = userRepository.findByEmail(email);
-
-        if (userEmail.isPresent()) {
-            return userEmail.get();
-        } else {
-            throw new RuntimeException("Email не найден");
-        }
-    }
-*/

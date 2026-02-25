@@ -8,6 +8,7 @@ import org.example.reminder1.dto.ReminderResponse;
 import org.example.reminder1.dto.SortRequest;
 import org.example.reminder1.entity.Reminder;
 import org.example.reminder1.entity.User;
+import org.example.reminder1.mapper.ReminderMapper;
 import org.example.reminder1.repository.ReminderRepository;
 import org.example.reminder1.service.ReminderService;
 import org.example.reminder1.service.UserService;
@@ -27,6 +28,7 @@ public class ReminderController {
     private final ReminderService reminderService;
     private final ReminderRepository reminderRepository;
     private final UserService userService;
+    private final ReminderMapper reminderMapper;
 
     private User getUserFromOAuth2(OAuth2User oauth2User) {
         String googleId = oauth2User.getAttribute("sub");
@@ -37,26 +39,13 @@ public class ReminderController {
     public ReminderResponse createReminder(
             @Valid @RequestBody ReminderCreateRequest request,
             @AuthenticationPrincipal OAuth2User oauth2User
-            ) {
+    ) {
 
         User user = getUserFromOAuth2(oauth2User);
-
-        Reminder reminder = new Reminder();
-        reminder.setTitle(request.getTitle());
-        reminder.setDescription(request.getDescription());
-        reminder.setRemind(request.getRemind());
-        reminder.setUser(user);
-        reminder.setNotified(false);
-
+        Reminder reminder = reminderMapper.toEntity(request, user);
         Reminder saved = reminderService.createReminder(reminder);
 
-        return new ReminderResponse(
-                saved.getId(),
-                saved.getTitle(),
-                saved.getDescription(),
-                saved.getRemind(),
-                saved.getNotified()
-        );
+        return reminderMapper.toResponse(saved);
     }
 
     @DeleteMapping("/delete/{id}")
@@ -67,9 +56,9 @@ public class ReminderController {
         User user = getUserFromOAuth2(oauth2User);
 
         Reminder reminder = reminderRepository.findById(id)
-                        .orElseThrow(() -> new RuntimeException("Напоминание не найдено"));
+                .orElseThrow(() -> new RuntimeException("Напоминание не найдено"));
 
-        if(!reminder.getUser().getId().equals(user.getId())) {
+        if (!reminder.getUser().getId().equals(user.getId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("Нельзя удалить чужое напоминание");
         }
@@ -87,22 +76,17 @@ public class ReminderController {
 
         User user = getUserFromOAuth2(oauth2User);
 
-        Reminder reminder = new Reminder();
-        reminder.setId(id);
-        reminder.setTitle(request.getTitle());
-        reminder.setDescription(request.getDescription());
-        reminder.setRemind(request.getRemind());
-        reminder.setUser(user);
+        Reminder reminder = reminderService.getReminderById(id);
 
+
+        if (!reminder.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Нельзя редактировать чужое напоминание");
+        }
+
+        reminderMapper.updateEntity(reminder, request);
         Reminder updated = reminderService.updateReminder(reminder);
+        return reminderMapper.toResponse(updated);
 
-        return new ReminderResponse(
-                updated.getId(),
-                updated.getTitle(),
-                updated.getDescription(),
-                updated.getRemind(),
-                updated.getNotified()
-        );
     }
 
     @GetMapping("/list")
@@ -110,16 +94,9 @@ public class ReminderController {
 
         User user = getUserFromOAuth2(oauth2User);
 
-        List<Reminder> reminders = reminderService.getUserReminder(user.getId());
-
-        return reminders.stream()
-                .map(reminder -> new ReminderResponse(
-                        reminder.getId(),
-                        reminder.getTitle(),
-                        reminder.getDescription(),
-                        reminder.getRemind(),
-                        reminder.getNotified()
-                ))
+        return reminderService.getUserReminder(user.getId())
+                .stream()
+                .map(reminderMapper::toResponse)
                 .toList();
 
     }
@@ -135,16 +112,9 @@ public class ReminderController {
                 ? Sort.by(request.getBy()).descending()
                 : Sort.by(request.getBy()).ascending();
 
-        List<Reminder> reminders = reminderService.getUserRemindersSorted(user.getId(), sort);
-
-        return reminders.stream()
-                .map(reminder -> new ReminderResponse(
-                        reminder.getId(),
-                        reminder.getTitle(),
-                        reminder.getDescription(),
-                        reminder.getRemind(),
-                        reminder.getNotified()
-                ))
+        return reminderService.getUserRemindersSorted(user.getId(), sort)
+                .stream()
+                .map(reminderMapper::toResponse)
                 .toList();
     }
 
@@ -155,20 +125,9 @@ public class ReminderController {
 
         User user = getUserFromOAuth2(oauth2User);
 
-        List<Reminder> reminders = reminderService.getUserRemindersFiltered(
-                user.getId(),
-                request.getDateFrom(),
-                request.getDateTo()
-        );
-
-        return reminders.stream()
-                .map(reminder -> new ReminderResponse(
-                        reminder.getId(),
-                        reminder.getTitle(),
-                        reminder.getDescription(),
-                        reminder.getRemind(),
-                        reminder.getNotified()
-                ))
+        return reminderService.getUserRemindersFiltered(user.getId(), request.getDateFrom(), request.getDateTo())
+                .stream()
+                .map(reminderMapper::toResponse)
                 .toList();
     }
 }
