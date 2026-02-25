@@ -16,14 +16,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "google_id", unique = true)
-    private String googleId;
-
     @Column(unique = true)
     private String email;
 
     @Column(name = "telegram_chat_id")
     private Long telegramChatId;
+
+    @Column(name = "google_id", unique = true)
+    private String googleId;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Reminder> reminderList;

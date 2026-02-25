@@ -6,6 +6,7 @@ import org.example.reminder1.dto.UpdateEmailRequest;
 import org.example.reminder1.dto.UpdateTelegramRequest;
 import org.example.reminder1.dto.UserProfileResponse;
 import org.example.reminder1.entity.User;
+import org.example.reminder1.mapper.UserMapper;
 import org.example.reminder1.repository.UserRepository;
 import org.example.reminder1.service.UserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     private User getUserFromOAuth2(OAuth2User oauth2User) {
         String googleId = oauth2User.getAttribute("sub");
@@ -27,11 +29,7 @@ public class UserController {
     @GetMapping("/profile")
     public UserProfileResponse getProfile(@AuthenticationPrincipal OAuth2User oauth2User) {
         User user = getUserFromOAuth2(oauth2User);
-        return new UserProfileResponse(
-                user.getId(),
-                user.getEmail(),
-                user.getTelegramChatId()
-        );
+        return userMapper.toResponse(user);
     }
 
     @PutMapping("/profile/email")
@@ -43,11 +41,7 @@ public class UserController {
         user.setEmail(request.getEmail());
         User updated = userService.updateUser(user);
 
-        return new UserProfileResponse(
-                updated.getId(),
-                updated.getEmail(),
-                updated.getTelegramChatId()
-        );
+        return userMapper.toResponse(updated);
     }
 
     @PutMapping("/profile/telegram")
@@ -57,13 +51,9 @@ public class UserController {
 
         User user = getUserFromOAuth2(oauth2User);
         user.setTelegramChatId(request.getTelegramChatId());
-        User updated = userRepository.save(user);
+        User updated = userService.updateUser(user);
 
-        return new UserProfileResponse(
-                updated.getId(),
-                updated.getEmail(),
-                updated.getTelegramChatId()
-        );
+        return userMapper.toResponse(updated);
     }
 
     @DeleteMapping("/profile/telegram")
@@ -73,11 +63,7 @@ public class UserController {
         user.setTelegramChatId(null);
         User updated = userService.updateUser(user);
 
-        return new UserProfileResponse(
-                updated.getId(),
-                updated.getEmail(),
-                updated.getTelegramChatId()
-        );
+        return userMapper.toResponse(updated);
     }
 
     @PutMapping("/test/telegram")
@@ -91,10 +77,6 @@ public class UserController {
         user.setTelegramChatId(updateTelegramRequest.getTelegramChatId());
         User updated = userRepository.save(user);
 
-        return new UserProfileResponse(
-                updated.getId(),
-                updated.getEmail(),
-                updated.getTelegramChatId()
-        );
+        return userMapper.toResponse(updated);
     }
 }
