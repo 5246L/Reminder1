@@ -4,35 +4,25 @@ import org.example.reminder1.dto.ReminderCreateRequest;
 import org.example.reminder1.dto.ReminderResponse;
 import org.example.reminder1.entity.Reminder;
 import org.example.reminder1.entity.User;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
-@Component
-public class ReminderMapper {
+@Mapper(componentModel = "spring")
+public interface ReminderMapper {
 
-    public Reminder toEntity(ReminderCreateRequest request, User user) {
-        Reminder reminder = new Reminder();
-        reminder.setTitle(request.getTitle());
-        reminder.setDescription(request.getDescription());
-        reminder.setRemind(request.getRemind());
-        reminder.setUser(user);
-        reminder.setNotified(false);
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "notified", constant = "false")
+    @Mapping(target = "title", source = "request.title")
+    @Mapping(target = "description", source = "request.description")
+    @Mapping(target = "remind", source = "request.remind")
+    @Mapping(target = "user", source = "user")
+    Reminder toEntity(ReminderCreateRequest request, User user);
 
-        return reminder;
-    }
+    ReminderResponse toResponse(Reminder reminder);
 
-    public ReminderResponse toResponse(Reminder reminder) {
-        return new ReminderResponse(
-                reminder.getId(),
-                reminder.getTitle(),
-                reminder.getDescription(),
-                reminder.getRemind(),
-                reminder.getNotified()
-        );
-    }
-
-    public void updateEntity(Reminder reminder, ReminderCreateRequest request) {
-        reminder.setTitle(request.getTitle());
-        reminder.setDescription(request.getDescription());
-        reminder.setRemind(request.getRemind());
-    }
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "notified", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    void updateEntity(@MappingTarget Reminder reminder, ReminderCreateRequest request);
 }

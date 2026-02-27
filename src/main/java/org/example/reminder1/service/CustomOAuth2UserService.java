@@ -15,6 +15,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
+    private static final String ATTR_SUB = "sub";
+    private static final String ATTR_EMAIL = "email";
+
     private final UserRepository userRepository;
     private final UserService userService;
 
@@ -22,18 +25,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         OAuth2User oAuth2User = super.loadUser(oAuth2UserRequest);
 
-        String googleId = oAuth2User.getAttribute("sub");
-        String email = oAuth2User.getAttribute("email");
+        String googleId = oAuth2User.getAttribute(ATTR_SUB);
+        String email = oAuth2User.getAttribute(ATTR_EMAIL);
 
         Optional<User> userOptional = userRepository.findByGoogleId(googleId);
 
-        User user;
-        if(userOptional.isPresent()) {
-            user = userOptional.get();
-        }else {
-            user = new User();
+        if (userOptional.isEmpty()) {
+            User user = new User();
             user.setGoogleId(googleId);
-            user.setEmail(oAuth2User.getAttribute("email"));
+            user.setEmail(email);
             userService.createUser(user);
         }
 

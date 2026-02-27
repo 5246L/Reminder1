@@ -2,8 +2,8 @@ package org.example.reminder1.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.reminder1.dto.TelegramSendMessageRequest;
+import org.example.reminder1.entity.Reminder;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -14,7 +14,7 @@ public class TelegramService {
     private final String botToken;
     private final RestTemplate restTemplate;
 
-    public TelegramService (
+    public TelegramService(
             @Value("${telegram.bot.token}") String botToken,
             RestTemplate restTemplate) {
         this.botToken = botToken;
@@ -28,24 +28,12 @@ public class TelegramService {
         }
 
         try {
+            String url = String.format("https://api.telegram.org/bot%s/sendMessage", botToken);
             String text = "🔔 " + title + "\n\n" + description;
 
-            String url = String.format(
-                    "https://api.telegram.org/bot%s/sendMessage",
-                    botToken
-            );
-
-            TelegramSendMessageRequest request = new TelegramSendMessageRequest(chatId, text);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            HttpEntity<TelegramSendMessageRequest> entity = new HttpEntity<>(request, headers);
-
-            ResponseEntity<String> response = restTemplate.exchange(
+            restTemplate.postForEntity(
                     url,
-                    HttpMethod.POST,
-                    entity,
+                    new TelegramSendMessageRequest(chatId, text),
                     String.class
             );
 
@@ -57,10 +45,26 @@ public class TelegramService {
         }
     }
 
+    public boolean sendReminderIfPossible(Reminder reminder) {
+        if (reminder.getUser().getTelegramChatId() == null) return false;
+        try {
+            sendReminder(
+                    reminder.getUser().getTelegramChatId(),
+                    reminder.getTitle(),
+                    reminder.getDescription()
+            );
+            log.info("Telegram отправлен: {}", reminder.getUser().getTelegramChatId());
+            return true;
+        } catch (Exception e) {
+            log.error("Ошибка Email для ID {}: {}", reminder.getId(), e.getMessage());
+            return false;
+        }
+    }
+
     public String getUpdates() {
         String url = String.format(
-          "https://api.telegram.org/bot%s/getUpdates",
-          botToken
+                "https://api.telegram.org/bot%s/getUpdates",
+                botToken
         );
 
         return restTemplate.getForObject(url, String.class);

@@ -14,16 +14,22 @@ public class Reminder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
+    @Column(name = "title")
     private String title;
+
+    @Column(name = "description")
 	private String description;
+
+    @Column(name = "remind")
 	private LocalDateTime remind;
 
-    @Column(nullable = false)
+    @Column(name = "notified", nullable = false)
     private Boolean notified = false;
 
-    @ManyToOne //(cascade = CascadeType.PERSIST)
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
