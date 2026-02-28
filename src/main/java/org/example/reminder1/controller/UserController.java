@@ -5,9 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.example.reminder1.dto.UpdateEmailRequest;
 import org.example.reminder1.dto.UpdateTelegramRequest;
 import org.example.reminder1.dto.UserProfileResponse;
-import org.example.reminder1.entity.User;
-import org.example.reminder1.repository.UserRepository;
 import org.example.reminder1.service.UserService;
+import org.example.reminder1.util.OAuth2UserResolver;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
@@ -17,37 +16,18 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final UserRepository userRepository;
-
-    private User getUserFromOAuth2(OAuth2User oauth2User) {
-        String googleId = oauth2User.getAttribute("sub");
-        return userService.getUserByGoogleId(googleId);
-    }
+    private final OAuth2UserResolver oAuth2UserResolver;
 
     @GetMapping("/profile")
     public UserProfileResponse getProfile(@AuthenticationPrincipal OAuth2User oauth2User) {
-        User user = getUserFromOAuth2(oauth2User);
-        return new UserProfileResponse(
-                user.getId(),
-                user.getEmail(),
-                user.getTelegramChatId()
-        );
+        return userService.getProfile(oAuth2UserResolver.resolve(oauth2User));
     }
 
     @PutMapping("/profile/email")
     public UserProfileResponse updateEmail(
             @Valid @RequestBody UpdateEmailRequest request,
             @AuthenticationPrincipal OAuth2User oauth2User) {
-
-        User user = getUserFromOAuth2(oauth2User);
-        user.setEmail(request.getEmail());
-        User updated = userService.updateUser(user);
-
-        return new UserProfileResponse(
-                updated.getId(),
-                updated.getEmail(),
-                updated.getTelegramChatId()
-        );
+        return userService.updateEmail(request, oAuth2UserResolver.resolve(oauth2User));
     }
 
     @PutMapping("/profile/telegram")
@@ -55,46 +35,11 @@ public class UserController {
             @Valid @RequestBody UpdateTelegramRequest request,
             @AuthenticationPrincipal OAuth2User oauth2User) {
 
-        User user = getUserFromOAuth2(oauth2User);
-        user.setTelegramChatId(request.getTelegramChatId());
-        User updated = userRepository.save(user);
-
-        return new UserProfileResponse(
-                updated.getId(),
-                updated.getEmail(),
-                updated.getTelegramChatId()
-        );
+        return userService.updateTelegram(request, oAuth2UserResolver.resolve(oauth2User));
     }
 
     @DeleteMapping("/profile/telegram")
     public UserProfileResponse removeTelegram(@AuthenticationPrincipal OAuth2User oauth2User) {
-        User user = getUserFromOAuth2(oauth2User);
-
-        user.setTelegramChatId(null);
-        User updated = userService.updateUser(user);
-
-        return new UserProfileResponse(
-                updated.getId(),
-                updated.getEmail(),
-                updated.getTelegramChatId()
-        );
-    }
-
-    @PutMapping("/test/telegram")
-    public UserProfileResponse testUpdateTelegram(
-            @Valid @RequestBody UpdateTelegramRequest updateTelegramRequest,
-            @RequestParam Long userId) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User с ID " + userId + " не найден"));
-
-        user.setTelegramChatId(updateTelegramRequest.getTelegramChatId());
-        User updated = userRepository.save(user);
-
-        return new UserProfileResponse(
-                updated.getId(),
-                updated.getEmail(),
-                updated.getTelegramChatId()
-        );
+        return userService.removeTelegram(oAuth2UserResolver.resolve(oauth2User));
     }
 }

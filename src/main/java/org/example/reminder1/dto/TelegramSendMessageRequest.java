@@ -10,6 +10,6 @@ import lombok.*;
 @NoArgsConstructor
 public class TelegramSendMessageRequest {
     @JsonProperty("chat_id")
-    private Long char_id;
+    private Long chatId;
     private String text;
 }

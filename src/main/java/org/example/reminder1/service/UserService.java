@@ -1,14 +1,18 @@
 package org.example.reminder1.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.reminder1.dto.*;
 import org.example.reminder1.entity.User;
+import org.example.reminder1.mapper.UserMapper;
 import org.example.reminder1.repository.UserRepository;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     public void createUser(User user) {
         userRepository.save(user);
@@ -22,38 +26,42 @@ public class UserService {
     public User updateUser(User user) {
         return userRepository.save(user);
     }
+
+    public UserProfileResponse getProfile(User user) {
+        return userMapper.toResponse(user);
+    }
+
+    public UserProfileResponse updateEmail(UpdateEmailRequest request, User user) {
+        user.setEmail(request.getEmail());
+
+        return userMapper.toResponse(updateUser(user));
+    }
+
+    public UserProfileResponse updateTelegram(UpdateTelegramRequest request, User user) {
+        user.setTelegramChatId(request.getTelegramChatId());
+
+        return userMapper.toResponse(updateUser(user));
+    }
+
+    public UserProfileResponse removeTelegram(User user) {
+        user.setTelegramChatId(null);
+
+        return userMapper.toResponse(updateUser(user));
+    }
+
+    public AuthSuccessResponse getAuthSuccess(OAuth2User oauth2User) {
+        return new AuthSuccessResponse(
+                "Авторизация успешна!",
+                oauth2User.getAttribute("name"),
+                oauth2User.getAttribute("email")
+        );
+    }
+
+    public CurrentUserResponse getCurrentUser(OAuth2User oauth2User) {
+        return new CurrentUserResponse(
+                oauth2User.getAttribute("name"),
+                oauth2User.getAttribute("email"),
+                oauth2User.getAttribute("picture")
+        );
+    }
 }
-/*
-    public User getUserByTelegramChatId(Long telegramChatId) {
-        Optional<User> userTelegramChat = userRepository.findByTelegramChatId(telegramChatId);
-
-        if (userTelegramChat.isPresent()) {
-            return userTelegramChat.get();
-        } else {
-            throw new RuntimeException("Пользователь не найден");
-        }
-    }
-
-    public User updateTelegramChatId(Long userId, Long telegramChatId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User не найден"));
-        user.setTelegramChatId(telegramChatId);
-        return userRepository.save(user);
-    }
-
-   private User getUserFromOAuth2(OAuth2User oauth2User) {
-        String googleId = oauth2User.getAttribute("sub");
-        return userRepository.findByGoogleId(googleId)
-                .orElseThrow(() -> new RuntimeException("User не найден"));
-    }
-
-    public User getUserByEmail(String email) {
-        Optional<User> userEmail = userRepository.findByEmail(email);
-
-        if (userEmail.isPresent()) {
-            return userEmail.get();
-        } else {
-            throw new RuntimeException("Email не найден");
-        }
-    }
-*/

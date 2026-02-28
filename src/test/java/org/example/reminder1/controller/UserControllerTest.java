@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -131,24 +130,5 @@ public class UserControllerTest {
         // Проверить что telegram_chat_id удалён из БД
         User updatedUser = userRepository.findById(testUser.getId()).orElseThrow();
         assert updatedUser.getTelegramChatId() == null;
-    }
-
-    @Test
-    void testUpdateTelegramTest_WithoutOAuth2() throws Exception {
-        User testUser = new User();
-        testUser.setGoogleId("test-google-id");
-        testUser.setEmail("test@example.com");
-        testUser = userRepository.save(testUser);
-
-        UpdateTelegramRequest request = new UpdateTelegramRequest();
-        request.setTelegramChatId(123456789L);
-
-        mockMvc.perform(put("/api/v1/user/test/telegram")
-                        .with(csrf())
-                        .param("userId", testUser.getId().toString())  // ← Используйте реальный ID
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.telegramChatId").value(123456789L));
     }
 }
