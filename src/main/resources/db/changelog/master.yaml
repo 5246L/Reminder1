@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/001-create-users.yaml
+  - include:
+      file: db/changelog/002-create-reminder.yaml
+  - include:
+      file: db/changelog/003-add-google-id-to-users.yaml

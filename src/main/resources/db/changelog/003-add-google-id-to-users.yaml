@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-google-id-to-users
+      author: lev
+      changes:
+        -sqlFile:
+          -path: db/changelog/sql/003-add-google-id-to-users.sql

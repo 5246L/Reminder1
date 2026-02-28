@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-reminders
+      author: lev
+      changes:
+        -sqlFile:
+          path: db/changelog/sql/002-create-users.sql
