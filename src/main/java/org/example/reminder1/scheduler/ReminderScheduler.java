@@ -22,7 +22,7 @@ public class ReminderScheduler {
     private final TelegramService telegramService;
 
     @Scheduled(cron = "${app.scheduler.cron}")
-    @SchedulerLock(name = "checkAndSendReminders", lockAtMostFor = "55s")
+    @SchedulerLock(name = "checkAndSendReminders", lockAtMostFor = "30s")
     public void checkAndSendReminders() {
         log.info("Проверка упоминаний...");
         List<Reminder> reminders = reminderService.getRemindersToSend(LocalDateTime.now());
